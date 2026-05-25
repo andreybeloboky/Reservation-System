@@ -2,7 +2,7 @@ package com.example.reservation_system;
 
 import java.time.LocalDate;
 
-record Reservation(
+public record Reservation(
         Long id,
         Long userId,
         Long roomId,

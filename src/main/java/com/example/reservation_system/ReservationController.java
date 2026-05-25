@@ -1,9 +1,16 @@
 package com.example.reservation_system;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.NoSuchElementException;
 
 @RestController
+@RequestMapping("/reservation")
+@Slf4j
 public class ReservationController {
 
     private final ReservationService reservationService;
@@ -12,9 +19,54 @@ public class ReservationController {
         this.reservationService = reservationService;
     }
 
+    @GetMapping("/reservation/{id}")
+    public ResponseEntity<Reservation> getReservationByID(@PathVariable("id") Long id) {
+        log.info("Called getReservationById: id=" + id);
+        return ResponseEntity.status(HttpStatus.OK).body(reservationService.getReservationById(id));
+    }
+
     @GetMapping()
-    public String getReservationByID() {
-        System.out.println("Test");
-        return reservationService.getReservationById();
+    public ResponseEntity<List<Reservation>> getAllReservation() {
+        log.info("Called getAllReservation");
+        try {
+            return ResponseEntity.ok(reservationService.findAllReservation());
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @PostMapping()
+    public ResponseEntity<Reservation> createReservation(@RequestBody Reservation reservationToCreate) {
+        log.info("Called createReservation");
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(reservationService.createReservation(reservationToCreate));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Reservation> updateReservation(
+            @PathVariable("id") Long id,
+            @RequestBody Reservation reservationToUpdate
+    ) {
+        log.info("Called method updateReservation id={}, reservationToUpdate={}", id, reservationToUpdate);
+        Reservation updated = reservationService.updateReservation(id, reservationToUpdate);
+        return ResponseEntity.status(HttpStatus.OK).body(updated);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteReservation(
+            @PathVariable("id") Long id
+    ) {
+        log.info("Called deleteReservation: id={}", id);
+        try {
+            reservationService.deleteReservation(id);
+            return ResponseEntity.ok().build();
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @PostMapping("/{id}/approve")
+    public ResponseEntity<Reservation> approveReservation(){
+
     }
 }
