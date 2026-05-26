@@ -66,7 +66,11 @@ public class ReservationController {
     }
 
     @PostMapping("/{id}/approve")
-    public ResponseEntity<Reservation> approveReservation(){
-
+    public ResponseEntity<Reservation> approveReservation(
+            @PathVariable("id") Long id
+    ){
+        log.info("Called approveReservation: id={}", id);
+        Reservation reservation = reservationService.approveReservation(id);
+        return ResponseEntity.ok(reservation);
     }
 }
