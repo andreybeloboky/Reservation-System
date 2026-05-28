@@ -25,17 +25,14 @@ public class ReservationController {
         return ResponseEntity.status(HttpStatus.OK).body(reservationService.getReservationById(id));
     }
 
-    @GetMapping()
+    @GetMapping
     public ResponseEntity<List<Reservation>> getAllReservation() {
         log.info("Called getAllReservation");
-        try {
-            return ResponseEntity.ok(reservationService.findAllReservation());
-        } catch (NoSuchElementException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        return ResponseEntity.ok(reservationService.findAllReservation());
+
     }
 
-    @PostMapping()
+    @PostMapping
     public ResponseEntity<Reservation> createReservation(@RequestBody Reservation reservationToCreate) {
         log.info("Called createReservation");
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -57,18 +54,15 @@ public class ReservationController {
             @PathVariable("id") Long id
     ) {
         log.info("Called deleteReservation: id={}", id);
-        try {
-            reservationService.cancelReservation(id);
-            return ResponseEntity.ok().build();
-        } catch (NoSuchElementException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        reservationService.cancelReservation(id);
+        return ResponseEntity.ok().build();
+
     }
 
     @PostMapping("/{id}/approve")
     public ResponseEntity<Reservation> approveReservation(
             @PathVariable("id") Long id
-    ){
+    ) {
         log.info("Called approveReservation: id={}", id);
         Reservation reservation = reservationService.approveReservation(id);
         return ResponseEntity.ok(reservation);

@@ -20,7 +20,7 @@ public class ReservationService {
 
     public Reservation getReservationById(Long id) {
         ReservationEntity find = repository.findById(id)
-                .orElseThrow(() ->new EntityNotFoundException("Not found reservation by id = " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Not found reservation by id = " + id));
         return toDomainReservation(find);
     }
 
@@ -31,12 +31,14 @@ public class ReservationService {
     }
 
     public Reservation createReservation(Reservation reservationToCreate) {
-        if (reservationToCreate.id() != null) {
-            throw new IllegalArgumentException("Id should be empty");
-        }
         if (reservationToCreate.status() != null) {
             throw new IllegalArgumentException("Status should be empty");
         }
+
+        if (!reservationToCreate.endDate().isAfter(reservationToCreate.startDate())) {
+            throw new IllegalArgumentException("start date must be 1 day earlier than end date");
+        }
+
         var entityToSave = new ReservationEntity(
                 null,
                 reservationToCreate.userId(),
@@ -53,7 +55,7 @@ public class ReservationService {
         var reservationEntity = repository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Not found reservation by id = " + id));
 
-        if(reservationEntity.getStatus()!= ReservationStatus.PENDING){
+        if (reservationEntity.getStatus() != ReservationStatus.PENDING) {
             throw new IllegalStateException("Cannot modify reservation: status =" + reservationEntity.getStatus());
         }
 
@@ -89,12 +91,12 @@ public class ReservationService {
         var reservationEntity = repository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Not found reservation by id = " + id));
 
-        if(reservationEntity.getStatus() != ReservationStatus.PENDING){
+        if (reservationEntity.getStatus() != ReservationStatus.PENDING) {
             throw new IllegalStateException("Cannot approve reservation status= " + reservationEntity.getStatus());
         }
 
         boolean isConflict = isReservationConflict(reservationEntity);
-        if(isConflict){
+        if (isConflict) {
             throw new IllegalStateException("Cannot approve reservation because of conflict");
         }
 
@@ -104,28 +106,28 @@ public class ReservationService {
         return toDomainReservation(reservationEntity);
     }
 
-    private boolean isReservationConflict(ReservationEntity reservation){
+    private boolean isReservationConflict(ReservationEntity reservation) {
         var AllReservations = repository.findAll();
 
-        for(ReservationEntity existingReservation: AllReservations){
-            if(reservation.getId().equals(existingReservation.getId())){
+        for (ReservationEntity existingReservation : AllReservations) {
+            if (reservation.getId().equals(existingReservation.getId())) {
                 continue;
             }
-            if(!reservation.getRoomId().equals(existingReservation.getRoomId())){
+            if (!reservation.getRoomId().equals(existingReservation.getRoomId())) {
                 continue;
             }
-            if(existingReservation.getStatus().equals(ReservationStatus.APPROVED)){
+            if (existingReservation.getStatus().equals(ReservationStatus.APPROVED)) {
                 continue;
             }
-            if(reservation.getStartDate().isBefore(existingReservation.getEndDate())
-                    && existingReservation.getEndDate().isBefore(reservation.getEndDate())){
+            if (reservation.getStartDate().isBefore(existingReservation.getEndDate())
+                    && existingReservation.getEndDate().isBefore(reservation.getEndDate())) {
                 return true;
             }
         }
         return false;
     }
 
-    private Reservation toDomainReservation(ReservationEntity reservationEntity){
+    private Reservation toDomainReservation(ReservationEntity reservationEntity) {
         return new Reservation(
                 reservationEntity.getId(),
                 reservationEntity.getUserId(),
