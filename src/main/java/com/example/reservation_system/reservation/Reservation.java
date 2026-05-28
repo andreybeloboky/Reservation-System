@@ -1,6 +1,5 @@
-package com.example.reservation_system;
+package com.example.reservation_system.reservation;
 
-import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
