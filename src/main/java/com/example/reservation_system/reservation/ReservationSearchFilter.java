@@ -1,0 +1,10 @@
+package com.example.reservation_system.reservation;
+
+public record ReservationSearchFilter(
+        Long roomId,
+        Long userId,
+        Integer pageSize,
+        Integer pageNumber
+) {
+
+}

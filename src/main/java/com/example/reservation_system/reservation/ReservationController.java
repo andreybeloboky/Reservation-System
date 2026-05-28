@@ -21,13 +21,24 @@ public class ReservationController {
     @GetMapping("/reservation/{id}")
     public ResponseEntity<Reservation> getReservationByID(@PathVariable("id") Long id) {
         log.info("Called getReservationById: id=" + id);
-        return ResponseEntity.status(HttpStatus.OK).body(reservationService.getReservationById(id));
+        return ResponseEntity.status(HttpStatus.OK).body(reservationService.findReservationById(id));
     }
 
     @GetMapping
-    public ResponseEntity<List<Reservation>> getAllReservation() {
+    public ResponseEntity<List<Reservation>> findAllReservation(
+            @RequestParam(name = "roomId", required = false) Long roomId,
+            @RequestParam(name = "userId", required = false) Long userId,
+            @RequestParam(name = "pageSize", required = false) Integer pageSize,
+            @RequestParam(name = "pageNumber", required = false) Integer pageNumber
+    ) {
         log.info("Called getAllReservation");
-        return ResponseEntity.ok(reservationService.findAllReservation());
+        var filter = new ReservationSearchFilter(
+                roomId,
+                userId,
+                pageSize,
+                pageNumber
+        );
+        return ResponseEntity.ok(reservationService.searchAllByFilter(filter));
 
     }
 

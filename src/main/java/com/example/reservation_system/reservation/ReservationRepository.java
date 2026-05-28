@@ -1,9 +1,11 @@
 package com.example.reservation_system.reservation;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
@@ -31,5 +33,15 @@ public interface ReservationRepository extends JpaRepository<ReservationEntity, 
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate,
             @Param(":status") ReservationStatus status
+    );
+
+    @Query("""
+            SELECT r.id from ReservationEntity r WHERE (:roomId IS NULL OR r.roomId = :roomId)
+            AND (:userId IS NULL OR r.userId = :userId)
+            """)
+    List<ReservationEntity> searchAllByFilter(
+      @Param("roomId") Long roomId,
+      @Param("userId") Long userId,
+      Pageable pageable
     );
 }
